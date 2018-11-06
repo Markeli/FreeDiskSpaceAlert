@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Topshelf;
 
 namespace Monitor
 {
@@ -7,10 +8,22 @@ namespace Monitor
     {
         static void Main(string[] args)
         {
-            foreach (var drive in DriveInfo.GetDrives())
+            var host = HostFactory.New(x =>
             {
-                Console.WriteLine($"{drive.Name}: available free size, bytes {new DiskSize(drive.AvailableFreeSpace).ConvertTo(MeasurementUnit.GB)}");
-            }
+                x.Service<Bootstraper>();
+                x.StartAutomatically();
+                x.SetServiceName("DriveFreeSpaceMonitor");
+                x.SetDisplayName("Drive free space monitoring service");
+
+                x.EnableServiceRecovery(r =>
+                {
+                    r.RestartService(0);
+                    r.OnCrashOnly();
+                    r.SetResetPeriod(1);
+                });
+            });
+
+            host.Run();
         }
     }
 }
