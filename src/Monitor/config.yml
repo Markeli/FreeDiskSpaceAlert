@@ -1,0 +1,30 @@
+CheckPeriodSec: 60
+MachineName: markeli
+
+EmailSettings:
+  Host: max.markelow@gmail.com
+  Email: asd
+  Password: asda
+    
+TelegramSettings:
+  BotToken: aasdsd
+  
+Emails:
+  - max.markelow@gmail.com
+  - max.markelow@gmail.com
+  - max.markelow@gmail.com
+  
+TelegramAccounts:
+  - markeli
+  - ads
+
+Drives:
+  - DeviceName: C
+    ThresholdValue: 150
+    TriggerMode: Accuracy
+    MeasurementUnit: GB
+
+  - DeviceName: D
+    ThresholdValue: 0.8
+    TriggerMode: Percentile
+    MeasurementUnit: GB

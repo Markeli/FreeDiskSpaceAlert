@@ -7,7 +7,7 @@ namespace Monitor
     {
         public string DeviceName { get; }
         
-        public double ThresholdValue { get; }
+        public double ThresholdValueInBytes { get; }
         
         public TriggerMode Mode { get; }
         
@@ -15,27 +15,37 @@ namespace Monitor
 
         public MonitoringTrigger(
             string deviceName, 
-            double thresholdValue, 
+            double thresholdValueInBytes, 
             TriggerMode mode, 
             MeasurementUnit eventUnit)
         {
-            DeviceName = deviceName;
-            ThresholdValue = thresholdValue;
+            if (String.IsNullOrWhiteSpace(deviceName)) throw new ArgumentNullException($"Specify {nameof(deviceName)}");
+            if (thresholdValueInBytes <= 0) throw new ArgumentException($"{nameof(thresholdValueInBytes)} should be greater than zero");
+            
+            DeviceName = deviceName.EndsWith(":\\")
+                ? deviceName
+                : $"{deviceName}:\\";
+            ThresholdValueInBytes = thresholdValueInBytes;
             Mode = mode;
+            if (mode == TriggerMode.Accuracy)
+            {
+                var temp = new DiskSize(thresholdValueInBytes, eventUnit);
+                ThresholdValueInBytes = temp.ConvertTo(MeasurementUnit.Byte).Size;
+            }
             EventUnit = eventUnit;
         }
 
         public bool IsTriggered(DriveInfo info)
         {
             if (info == null) throw new ArgumentNullException(nameof(info));
-            if (String.Equals(info.Name, DeviceName, StringComparison.InvariantCultureIgnoreCase)) return false;
+            if (!String.Equals(info.Name, DeviceName, StringComparison.InvariantCultureIgnoreCase)) return false;
 
             switch (Mode)
             {
                 case TriggerMode.Accuracy:
-                    return info.AvailableFreeSpace < ThresholdValue;
+                    return info.AvailableFreeSpace < ThresholdValueInBytes;
                 case TriggerMode.Percentile:
-                    return (info.AvailableFreeSpace - info.TotalSize) / 100 < ThresholdValue;
+                    return (double)info.AvailableFreeSpace / info.TotalSize < ThresholdValueInBytes;
                 default:
                     throw new ArgumentOutOfRangeException();
             }

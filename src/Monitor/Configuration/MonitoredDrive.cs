@@ -1,4 +1,4 @@
-namespace Monitor
+namespace Monitor.Configuration
 {
     public class MonitoredDrive
     {

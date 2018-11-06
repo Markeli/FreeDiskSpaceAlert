@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 
-namespace Monitor
+namespace Monitor.Configuration
 {
-    public class MonitoringConfiguraion
+    public class MonitoringConfiguration
     {
         public int CheckPeriodSec { get; set; }
+        
+        public string MachineName { get; set; }
         
         public EmailSettings EmailSettings { get; set; }
         

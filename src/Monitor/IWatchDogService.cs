@@ -4,26 +4,23 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Monitor.Configuration;
+using Monitor.Notifications;
 
 namespace Monitor
 {
-    public interface IWatchDogService
-    {
-        Task StartAsync();
 
-        Task StopAsync();
-    }
-
-    public class WatchDogService : IWatchDogService
+    public class WatchDogService 
     {
         private readonly INotifier _notifier;
         private CancellationTokenSource _cts;
         private Task _watchDogTask;
         private readonly ICollection<MonitoringTrigger> _triggers;
         private readonly TimeSpan _checkPeriod;
+        private readonly string _machineName;
         
         public WatchDogService(
-            MonitoringConfiguraion configuration,
+            MonitoringConfiguration configuration,
             INotifier notifier)
         {
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
@@ -31,6 +28,7 @@ namespace Monitor
             _notifier = notifier;
 
             _checkPeriod = TimeSpan.FromSeconds(configuration.CheckPeriodSec);
+            _machineName = configuration.MachineName;
             
             _triggers = new List<MonitoringTrigger>(configuration.Drives.Count);
             foreach (var drive in configuration.Drives)
@@ -56,23 +54,37 @@ namespace Monitor
         private async Task MonitorAsync(CancellationToken token)
         {
             await Task.Yield();
-            while (!token.IsCancellationRequested)
+            try
             {
-                await Task.Delay(_checkPeriod, token);
-                foreach (var drive in DriveInfo.GetDrives())
+                while (!token.IsCancellationRequested)
                 {
-                    if (token.IsCancellationRequested) break;
-                    
-                    var raisedTriggers = _triggers
-                        .Where(x => x.IsTriggered(drive));
-                    
-                    foreach (var raisedTrigger in raisedTriggers)
+                    foreach (var drive in DriveInfo.GetDrives())
                     {
                         if (token.IsCancellationRequested) break;
+                        if (!drive.IsReady) continue;
+                        
+                        var raisedTriggers = _triggers
+                            .Where(x => x.IsTriggered(drive));
+                    
+                        foreach (var raisedTrigger in raisedTriggers)
+                        {
+                            if (token.IsCancellationRequested) break;
 
-                        await _notifier.NotifyAsync(raisedTrigger.Mode, drive, raisedTrigger.EventUnit, token);
+                            await _notifier.NotifyAsync(
+                                raisedTrigger.Mode, 
+                                drive, 
+                                raisedTrigger.EventUnit, 
+                                raisedTrigger.ThresholdValueInBytes,
+                                _machineName,
+                                token);
+                        }
                     }
+                    await Task.Delay(_checkPeriod, token);
                 }
+            }
+            catch (OperationCanceledException e)
+            {
+                Console.WriteLine(e);
             }
         }
 

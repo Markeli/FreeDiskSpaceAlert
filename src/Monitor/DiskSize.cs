@@ -58,7 +58,7 @@ namespace Monitor
         
         public override string ToString()
         {
-            return $"{Size} {Unit.ToText()}";
+            return $"{Math.Round(Size, 2)} {Unit.ToText()}";
         }
     }
 }

@@ -1,7 +1,7 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Monitor
+namespace Monitor.Notifications
 {
     public interface INotificationChannel
     {
