@@ -9,7 +9,7 @@ namespace Monitor
         {
             foreach (var drive in DriveInfo.GetDrives())
             {
-                Console.WriteLine($"{drive.Name}: available free size, bytes {drive.AvailableFreeSpace}");
+                Console.WriteLine($"{drive.Name}: available free size, bytes {new DiskSize(drive.AvailableFreeSpace).ConvertTo(MeasurementUnit.GB)}");
             }
         }
     }
