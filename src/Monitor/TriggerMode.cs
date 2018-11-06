@@ -1,6 +1,6 @@
 namespace Monitor
 {
-    internal enum TriggerMode
+    public enum TriggerMode
     {
         Accuracy,
         Percentile
