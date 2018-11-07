@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Monitor.Notifications
 {
-    public interface INotifier
+    public interface IAlertNotifier
     {
         Task NotifyAsync(
             TriggerMode mode, 

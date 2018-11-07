@@ -7,11 +7,20 @@ using System.Threading.Tasks;
 
 namespace Monitor.Notifications
 {
-    public class Notifier : INotifier
+    public class AlertNotifier : IAlertNotifier
     {
         private readonly ICollection<INotificationChannel> _channels;
         
-        public Notifier(ICollection<INotificationChannel> channels)
+        public AlertNotifier(INotificationChannel channel)
+        {
+            if (channel == null) throw new ArgumentNullException(nameof(channel));
+            _channels = new List<INotificationChannel>
+            {
+                channel
+            };
+        }
+        
+        public AlertNotifier(ICollection<INotificationChannel> channels)
         {
             _channels = channels ?? throw new ArgumentNullException(nameof(channels));
         }

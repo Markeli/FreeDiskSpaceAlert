@@ -6,20 +6,40 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentEmail.Core;
 using FluentEmail.Smtp;
+using Microsoft.Extensions.Configuration;
 using Monitor.Configuration;
 
 namespace Monitor.Notifications
 {
     public class EmailNotificationChannel : INotificationChannel
     {
-        private readonly EmailConfiguration _configuration;
+        private readonly EmailConfiguration _config;
         private readonly ICollection<string> _emails;
 
-        public EmailNotificationChannel(EmailConfiguration configuration, ICollection<string> emails)
+        public EmailNotificationChannel(MonitoringConfiguration config)
         {
-            Email.DefaultSender = new SmtpSender(new SmtpClient(configuration.Host, configuration.Port));
-            _configuration = configuration;
-            _emails = emails;
+            if (config == null) throw new ArgumentNullException(nameof(config));
+            if (config.EmailConfiguration == null) 
+                throw new ArgumentNullException($"{nameof(config.EmailConfiguration)} can not be null. " +
+                                                "Check email configuration section in config file");
+            if (String.IsNullOrWhiteSpace(config.EmailConfiguration.Host))
+                throw new ArgumentNullException($"{nameof(config.EmailConfiguration.Host)} can not be null." +
+                                                "Check host in email configuration section in config file");
+            if (config.Emails == null)  
+                throw new ArgumentNullException($"{nameof(config.Emails)} can not be null." +
+                                                "Check email section in config file");
+            foreach (var email in config.Emails)
+            {
+                if (String.IsNullOrWhiteSpace(email))
+                    throw new ArgumentException("Email can not be null. Check config file");
+            }
+            
+            Email.DefaultSender = new SmtpSender(
+                new SmtpClient(
+                    config.EmailConfiguration.Host, 
+                    config.EmailConfiguration.Port));
+            _config = config.EmailConfiguration;
+            _emails = config.Emails;
         }
         
         public async Task NotifyAsync(
@@ -40,7 +60,7 @@ namespace Monitor.Notifications
             foreach (var emailAddress in _emails)
             {
                 var email = Email
-                    .From(_configuration.Email)
+                    .From(_config.Email)
                     .To(emailAddress)
                     .Subject(message);
                 var response =  await email.SendAsync(token);
@@ -51,6 +71,7 @@ namespace Monitor.Notifications
                         Console.WriteLine(responseErrorMessage);
                     }
                 }
+                
             }
         }
     }

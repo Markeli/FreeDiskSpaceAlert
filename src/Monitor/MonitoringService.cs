@@ -4,28 +4,28 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 using Monitor.Configuration;
 using Monitor.Notifications;
 
 namespace Monitor
 {
 
-    public class WatchDogService 
+    public class MonitoringService : BackgroundService
     {
-        private readonly INotifier _notifier;
-        private CancellationTokenSource _cts;
+        private readonly IAlertNotifier _alertNotifier;
         private Task _watchDogTask;
         private readonly ICollection<MonitoringTrigger> _triggers;
         private readonly TimeSpan _checkPeriod;
         private readonly string _machineName;
         
-        public WatchDogService(
+        public MonitoringService(
             MonitoringConfiguration configuration,
-            INotifier notifier)
+            IAlertNotifier alertNotifier)
         {
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
             if (configuration.Drives == null) throw new ArgumentNullException(nameof(configuration.Drives));
-            _notifier = notifier;
+            _alertNotifier = alertNotifier;
 
             _checkPeriod = TimeSpan.FromSeconds(configuration.CheckPeriodSec);
             _machineName = configuration.MachineName;
@@ -43,24 +43,16 @@ namespace Monitor
             }
         }
         
-        public Task StartAsync()
-        {
-            _cts = new CancellationTokenSource();
-            var cancellationToken = _cts.Token;
-            _watchDogTask = MonitorAsync(cancellationToken);
-            return Task.CompletedTask;
-        }
-
-        private async Task MonitorAsync(CancellationToken token)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await Task.Yield();
             try
             {
-                while (!token.IsCancellationRequested)
+                while (!stoppingToken.IsCancellationRequested)
                 {
                     foreach (var drive in DriveInfo.GetDrives())
                     {
-                        if (token.IsCancellationRequested) break;
+                        if (stoppingToken.IsCancellationRequested) break;
                         if (!drive.IsReady) continue;
                         
                         var raisedTriggers = _triggers
@@ -68,30 +60,24 @@ namespace Monitor
                     
                         foreach (var raisedTrigger in raisedTriggers)
                         {
-                            if (token.IsCancellationRequested) break;
+                            if (stoppingToken.IsCancellationRequested) break;
 
-                            await _notifier.NotifyAsync(
+                            await _alertNotifier.NotifyAsync(
                                 raisedTrigger.Mode, 
                                 drive, 
                                 raisedTrigger.EventUnit, 
                                 raisedTrigger.ThresholdValueInBytes,
                                 _machineName,
-                                token);
+                                stoppingToken);
                         }
                     }
-                    await Task.Delay(_checkPeriod, token);
+                    await Task.Delay(_checkPeriod, stoppingToken);
                 }
             }
             catch (OperationCanceledException e)
             {
                 Console.WriteLine(e);
             }
-        }
-
-        public async Task StopAsync()
-        {
-            _cts?.Cancel();
-            await _watchDogTask;
         }
     }
 }
