@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Net.Mail;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,6 +35,10 @@ namespace Monitor.Notifications
             if (String.IsNullOrWhiteSpace(config.EmailConfiguration.Email))  
                 throw new ArgumentNullException($"{nameof(config.EmailConfiguration.Email)} can not be null." +
                                                 "Check email configuration section in config file");
+            if (String.IsNullOrWhiteSpace(config.EmailConfiguration.Password))  
+                throw new ArgumentNullException($"{nameof(config.EmailConfiguration.Password)} can not be null." +
+                                                "Check email configuration section in config file");
+            
             if (config.Emails == null)  
                 throw new ArgumentNullException($"{nameof(config.Emails)} can not be null." +
                                                 "Check email section in config file");
@@ -46,12 +51,17 @@ namespace Monitor.Notifications
 
             _logger = loggerFactory.CreateLogger<EmailNotificationChannel>();
             
-            Email.DefaultSender = new SmtpSender(
-                new SmtpClient(
-                    config.EmailConfiguration.Host, 
-                    config.EmailConfiguration.Port));
             _config = config.EmailConfiguration;
             _emails = config.Emails;
+            
+            Email.DefaultSender = new SmtpSender(
+                new SmtpClient(_config.Host,_config.Port)
+                {
+                    EnableSsl = _config.EnableSsl,
+                    Timeout = 5000,
+                    UseDefaultCredentials = false,
+                    Credentials = new NetworkCredential(_config.Email, _config.Password)
+                });
         }
         
         public async Task NotifyAsync(
@@ -76,6 +86,7 @@ namespace Monitor.Notifications
                     .To(emailAddress)
                     .Subject($"Alert triggered on machine {machineName}")
                     .Body(message);
+                
                 var response =  await email.SendAsync(token);
                 if (!response.Successful)
                 {

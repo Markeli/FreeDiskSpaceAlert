@@ -1,11 +1,12 @@
-CheckPeriodSec: 60
+CheckPeriodSec: 10
 MachineName: local
 
 EmailConfiguration:
-  Host: smtp.gmail.com
-  Port: 465
-  Email: maxim.markelow@siisltd.ru
+  Host: smtp.mail.ru
+  Port: 587
+  Email: 
   Password: 
+  EnableSsl: true
   
 Emails:
   - max.markelow@gmail.com
