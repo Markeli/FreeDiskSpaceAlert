@@ -8,13 +8,9 @@ namespace Monitor.Configuration
         
         public string MachineName { get; set; }
         
-        public EmailSettings EmailSettings { get; set; }
-        
-        public TelegramSettings TelegramSettings { get; set; }
+        public EmailConfiguration EmailConfiguration { get; set; }
         
         public ICollection<string> Emails { get; set; }
-        
-        public ICollection<string> TelegramAccounts { get; set; } 
         
         public ICollection<MonitoredDrive> Drives { get; set; } 
     }

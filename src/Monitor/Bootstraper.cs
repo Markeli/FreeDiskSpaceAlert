@@ -9,11 +9,15 @@ namespace Monitor
     public class Bootstraper : ServiceControl
     {
         private WatchDogService _watchDog;
-        
+
         public bool Start(HostControl hostControl)
         {
             var config = GetConfig();
-            var notifier = new Notifier();
+            var emailChannel = new EmailNotificationChannel(config.EmailConfiguration, config.Emails);
+            var notifier = new Notifier(new[]
+            {
+                emailChannel
+            });
             _watchDog = new WatchDogService(config, notifier);
             _watchDog.StartAsync().GetAwaiter().GetResult();
             return true;

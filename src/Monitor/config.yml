@@ -1,23 +1,15 @@
 CheckPeriodSec: 60
-MachineName: markeli
+MachineName: local
 
-EmailSettings:
-  Host: max.markelow@gmail.com
-  Email: asd
-  Password: asda
-    
-TelegramSettings:
-  BotToken: aasdsd
+EmailConfiguration:
+  Host: smtp.gmail.com
+  Port: 465
+  Email: 
+  Password: 
   
 Emails:
   - max.markelow@gmail.com
-  - max.markelow@gmail.com
-  - max.markelow@gmail.com
   
-TelegramAccounts:
-  - markeli
-  - ads
-
 Drives:
   - DeviceName: C
     ThresholdValue: 150
