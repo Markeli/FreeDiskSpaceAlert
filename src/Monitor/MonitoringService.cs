@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Monitor.Configuration;
 using Monitor.Notifications;
 
@@ -14,70 +15,106 @@ namespace Monitor
     public class MonitoringService : BackgroundService
     {
         private readonly IAlertNotifier _alertNotifier;
-        private Task _watchDogTask;
-        private readonly ICollection<MonitoringTrigger> _triggers;
+        private readonly ICollection<AlertTrigger> _triggers;
         private readonly TimeSpan _checkPeriod;
         private readonly string _machineName;
-        
+        private readonly ILogger _logger;
+
         public MonitoringService(
             MonitoringConfiguration configuration,
-            IAlertNotifier alertNotifier)
+            IAlertNotifier alertNotifier,
+            ILoggerFactory loggerFactory)
         {
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
-            if (configuration.Drives == null) throw new ArgumentNullException(nameof(configuration.Drives));
+            if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
+            if (configuration.Drives == null) 
+                throw new ArgumentNullException($"{nameof(configuration.Drives)} can not be null. " +
+                                                "Check drive section in config file");
+            if (String.IsNullOrWhiteSpace(configuration.MachineName))
+                throw new ArgumentNullException($"{nameof(configuration.MachineName)} can not be null." +
+                                                "Check config file");
+            
             _alertNotifier = alertNotifier;
+            _logger = loggerFactory.CreateLogger<MonitoringService>();
 
             _checkPeriod = TimeSpan.FromSeconds(configuration.CheckPeriodSec);
             _machineName = configuration.MachineName;
             
-            _triggers = new List<MonitoringTrigger>(configuration.Drives.Count);
+            _triggers = new List<AlertTrigger>(configuration.Drives.Count);
             foreach (var drive in configuration.Drives)
             {
-                if(!Enum.TryParse<TriggerMode>(drive.TriggerMode, out var mode)) 
-                    throw new ArgumentException("Incorrect value for trigger mode. Supported: Accuracy and Percentile");
-                
-                if(!Enum.TryParse<MeasurementUnit>(drive.MeasurementUnit, out var unit)) 
-                    throw new ArgumentException("Incorrect value for measurement unit. Supported: Byte, KB, MB amd GB");
-                
-                _triggers.Add(new MonitoringTrigger(drive.DeviceName, drive.ThresholdValue, mode, unit));
+                _triggers.Add(
+                    new AlertTrigger(
+                        drive.DeviceName, 
+                        drive.ThresholdValue, 
+                        drive.TriggerMode, 
+                        drive.MeasurementUnit));
             }
+        }
+
+        public override async Task StartAsync(CancellationToken token)
+        {
+            _logger.LogInformation("Starting monitoring service");
+            await base.StartAsync(token);
+            _logger.LogInformation("Monitoring service started");
         }
         
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await Task.Yield();
-            try
+            while (!stoppingToken.IsCancellationRequested)
             {
-                while (!stoppingToken.IsCancellationRequested)
+                try
                 {
+                    
+                    await Task.Delay(_checkPeriod, stoppingToken);
+                    
                     foreach (var drive in DriveInfo.GetDrives())
                     {
                         if (stoppingToken.IsCancellationRequested) break;
                         if (!drive.IsReady) continue;
-                        
+
                         var raisedTriggers = _triggers
                             .Where(x => x.IsTriggered(drive));
-                    
+
                         foreach (var raisedTrigger in raisedTriggers)
                         {
                             if (stoppingToken.IsCancellationRequested) break;
 
                             await _alertNotifier.NotifyAsync(
-                                raisedTrigger.Mode, 
-                                drive, 
-                                raisedTrigger.EventUnit, 
+                                raisedTrigger.Mode,
+                                drive,
+                                raisedTrigger.EventUnit,
                                 raisedTrigger.ThresholdValueInBytes,
                                 _machineName,
                                 stoppingToken);
                         }
                     }
-                    await Task.Delay(_checkPeriod, stoppingToken);
                 }
+                catch (OperationCanceledException e)
+                {
+                    _logger.LogError(e, "Monitoring service was stopped");
+                }
+                catch (AggregateException e)
+                {
+                    foreach (var innerException in e.InnerExceptions)
+                    {
+                        _logger.LogError(e, $"Error on monitoring. {innerException.Message}");
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Critical error on monitoring service");
+                }
+                
             }
-            catch (OperationCanceledException e)
-            {
-                Console.WriteLine(e);
-            }
+        }
+
+        public override async Task StopAsync(CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("Stopping monitoring service");
+            await base.StopAsync(cancellationToken);
+            _logger.LogInformation("Monitoring service stopped");
         }
     }
 }

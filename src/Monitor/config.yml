@@ -4,7 +4,7 @@ MachineName: local
 EmailConfiguration:
   Host: smtp.gmail.com
   Port: 465
-  Email: 
+  Email: maxim.markelow@siisltd.ru
   Password: 
   
 Emails:

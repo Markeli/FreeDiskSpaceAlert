@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Monitor
 {
-    internal class MonitoringTrigger
+    internal class AlertTrigger
     {
         public string DeviceName { get; }
         
@@ -13,7 +13,7 @@ namespace Monitor
         
         public MeasurementUnit EventUnit { get; }
 
-        public MonitoringTrigger(
+        public AlertTrigger(
             string deviceName, 
             double thresholdValueInBytes, 
             TriggerMode mode, 

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using FluentEmail.Core;
 using FluentEmail.Smtp;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Monitor.Configuration;
 
 namespace Monitor.Notifications
@@ -15,9 +16,13 @@ namespace Monitor.Notifications
     {
         private readonly EmailConfiguration _config;
         private readonly ICollection<string> _emails;
+        private readonly ILogger _logger;
 
-        public EmailNotificationChannel(MonitoringConfiguration config)
+        public EmailNotificationChannel(
+            MonitoringConfiguration config,
+            ILoggerFactory loggerFactory)
         {
+            if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
             if (config == null) throw new ArgumentNullException(nameof(config));
             if (config.EmailConfiguration == null) 
                 throw new ArgumentNullException($"{nameof(config.EmailConfiguration)} can not be null. " +
@@ -25,14 +30,21 @@ namespace Monitor.Notifications
             if (String.IsNullOrWhiteSpace(config.EmailConfiguration.Host))
                 throw new ArgumentNullException($"{nameof(config.EmailConfiguration.Host)} can not be null." +
                                                 "Check host in email configuration section in config file");
+            
+            if (String.IsNullOrWhiteSpace(config.EmailConfiguration.Email))  
+                throw new ArgumentNullException($"{nameof(config.EmailConfiguration.Email)} can not be null." +
+                                                "Check email configuration section in config file");
             if (config.Emails == null)  
                 throw new ArgumentNullException($"{nameof(config.Emails)} can not be null." +
                                                 "Check email section in config file");
+            
             foreach (var email in config.Emails)
             {
                 if (String.IsNullOrWhiteSpace(email))
                     throw new ArgumentException("Email can not be null. Check config file");
             }
+
+            _logger = loggerFactory.CreateLogger<EmailNotificationChannel>();
             
             Email.DefaultSender = new SmtpSender(
                 new SmtpClient(
@@ -62,14 +74,20 @@ namespace Monitor.Notifications
                 var email = Email
                     .From(_config.Email)
                     .To(emailAddress)
-                    .Subject(message);
+                    .Subject($"Alert triggered on machine {machineName}")
+                    .Body(message);
                 var response =  await email.SendAsync(token);
                 if (!response.Successful)
                 {
                     foreach (var responseErrorMessage in response.ErrorMessages)
                     {
-                        Console.WriteLine(responseErrorMessage);
+                        _logger.LogWarning($"Error on sending email to {emailAddress}. " +
+                                         $"Error message: {responseErrorMessage}");
                     }
+                }
+                else
+                {
+                    _logger.LogInformation($"Email successfully sent to {emailAddress}");
                 }
                 
             }

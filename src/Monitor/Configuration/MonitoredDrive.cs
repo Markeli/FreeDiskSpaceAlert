@@ -6,8 +6,8 @@ namespace Monitor.Configuration
         
         public double ThresholdValue { get; set; }
         
-        public string MeasurementUnit { get; set; }
+        public MeasurementUnit MeasurementUnit { get; set; }
         
-        public string TriggerMode { get; set; }
+        public TriggerMode TriggerMode { get; set; }
     }
 }
