@@ -10,13 +10,12 @@ Drives:
   - DeviceName: D
     ThresholdValue: 0.8
     TriggerMode: Percentile
-    MeasurementUnit: GB
+    MeasurementUnit: asdas
     
 #EmailConfiguration:
 #  Host: smtp.mail.ru
 #  Port: 587
-
+#
 #  EnableSsl: true
 #  Recipients:
 #  - max.markelow@gmail.com
-#

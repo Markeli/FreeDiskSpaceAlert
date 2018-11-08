@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
@@ -57,11 +58,11 @@ namespace Monitor
                     services.AddSingleton(c =>
                     {
                         var config = c.GetService<IConfiguration>();
-                        var emailSection = config.GetSection("EmailConfiguration");
-                        if (emailSection?.Value == null) return null;
+                        var emailConfigSection = config.GetChildren().FirstOrDefault(x => x.Key == "EmailConfiguration");
+                        if (emailConfigSection == null) return null;
 
                         var emailConfiguration = new EmailConfiguration();
-                        emailSection.Bind(emailConfiguration);
+                        emailConfigSection.Bind(emailConfiguration);
                         return emailConfiguration;
                     });
                     services.AddSingleton(c =>
