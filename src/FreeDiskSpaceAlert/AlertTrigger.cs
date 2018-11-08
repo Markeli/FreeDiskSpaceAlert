@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace Monitor
+namespace FreeDiskSpaceAlert
 {
     internal class AlertTrigger
     {
@@ -44,7 +44,7 @@ namespace Monitor
             {
                 case TriggerMode.Accuracy:
                     return info.AvailableFreeSpace < ThresholdValueInBytes;
-                case TriggerMode.Percentile:
+                case TriggerMode.Percentage:
                     return (double)info.AvailableFreeSpace / info.TotalSize < ThresholdValueInBytes;
                 default:
                     throw new ArgumentOutOfRangeException();

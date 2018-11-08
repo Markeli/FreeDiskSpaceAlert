@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7C3E5000-AA7D-4315-B037-1554A5D6192A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monitor", "src\Monitor\Monitor.csproj", "{D9773A4F-6B56-4384-9BF5-750966D650AA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FreeDiskSpaceAlert", "src\FreeDiskSpaceAlert\FreeDiskSpaceAlert.csproj", "{D9773A4F-6B56-4384-9BF5-750966D650AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

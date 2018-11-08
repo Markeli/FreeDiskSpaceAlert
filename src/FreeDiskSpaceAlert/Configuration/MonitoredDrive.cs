@@ -1,4 +1,4 @@
-namespace Monitor.Configuration
+namespace FreeDiskSpaceAlert.Configuration
 {
     public class MonitoredDrive
     {

@@ -4,12 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using FreeDiskSpaceAlert.Alerts;
+using FreeDiskSpaceAlert.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Monitor.Configuration;
-using Monitor.Notifications;
 
-namespace Monitor
+namespace FreeDiskSpaceAlert
 {
 
     public class MonitoringService : BackgroundService
@@ -21,27 +21,30 @@ namespace Monitor
         private readonly ILogger _logger;
 
         public MonitoringService(
-            MonitoringConfiguration configuration,
+            MonitoringConfiguration config,
             IAlertNotifier alertNotifier,
             ILoggerFactory loggerFactory)
         {
-            if (configuration == null) throw new ArgumentNullException(nameof(configuration));
+            if (config == null) throw new ArgumentNullException(nameof(config));
             if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
-            if (configuration.Drives == null) 
-                throw new ArgumentNullException($"{nameof(configuration.Drives)} can not be null. " +
+            if (config.Drives == null) 
+                throw new ArgumentNullException($"{nameof(config.Drives)} can not be null. " +
                                                 "Check drive section in config file");
-            if (String.IsNullOrWhiteSpace(configuration.MachineName))
-                throw new ArgumentNullException($"{nameof(configuration.MachineName)} can not be null." +
+            if (String.IsNullOrWhiteSpace(config.MachineName))
+                throw new ArgumentNullException($"{nameof(config.MachineName)} can not be null." +
+                                                "Check config file");
+            if (config.AlertPeriodMin <= 0)
+                throw new ArgumentNullException($"{nameof(config.AlertPeriodMin)} can not less than 1." +
                                                 "Check config file");
             
             _alertNotifier = alertNotifier;
             _logger = loggerFactory.CreateLogger<MonitoringService>();
 
-            _checkPeriod = TimeSpan.FromSeconds(configuration.CheckPeriodSec);
-            _machineName = configuration.MachineName;
+            _checkPeriod = TimeSpan.FromMinutes(config.AlertPeriodMin);
+            _machineName = config.MachineName;
             
-            _triggers = new List<AlertTrigger>(configuration.Drives.Count);
-            foreach (var drive in configuration.Drives)
+            _triggers = new List<AlertTrigger>(config.Drives.Count);
+            foreach (var drive in config.Drives)
             {
                 _triggers.Add(
                     new AlertTrigger(
@@ -68,16 +71,15 @@ namespace Monitor
             await Task.Yield();
             while (!stoppingToken.IsCancellationRequested)
             {
+                _logger.LogTrace("Checking free disk space...");
                 try
                 {
-                    
-                    await Task.Delay(_checkPeriod, stoppingToken);
-                    
                     foreach (var drive in DriveInfo.GetDrives())
                     {
                         if (stoppingToken.IsCancellationRequested) break;
                         if (!drive.IsReady) continue;
 
+                        _logger.LogTrace($"Checking free disk space for {drive.Name} drive...");
                         var raisedTriggers = _triggers
                             .Where(x => x.IsTriggered(drive));
 
@@ -85,6 +87,7 @@ namespace Monitor
                         {
                             if (stoppingToken.IsCancellationRequested) break;
 
+                            _logger.LogTrace($"Sending alert for {drive.Name} driver...");
                             await _alertNotifier.NotifyAsync(
                                 raisedTrigger.Mode,
                                 drive,
@@ -93,7 +96,12 @@ namespace Monitor
                                 _machineName,
                                 stoppingToken);
                         }
+                        
+                        _logger.LogTrace($"Checking free disk space for {drive.Name} drive completed.");
                     }
+                    
+                    _logger.LogTrace("Checking free disk space completed.");
+                    await Task.Delay(_checkPeriod, stoppingToken);
                 }
                 catch (OperationCanceledException e)
                 {
@@ -110,7 +118,6 @@ namespace Monitor
                 {
                     _logger.LogError(e, "Critical error on monitoring service");
                 }
-                
             }
         }
 

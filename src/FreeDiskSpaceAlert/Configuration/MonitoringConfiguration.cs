@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 
-namespace Monitor.Configuration
+namespace FreeDiskSpaceAlert.Configuration
 {
     public class MonitoringConfiguration
     {
-        public int CheckPeriodSec { get; set; }
+        public int AlertPeriodMin { get; set; }
         
         public string MachineName { get; set; }
         

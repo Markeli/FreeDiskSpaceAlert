@@ -7,11 +7,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentEmail.Core;
 using FluentEmail.Smtp;
-using Microsoft.Extensions.Configuration;
+using FreeDiskSpaceAlert.Configuration;
 using Microsoft.Extensions.Logging;
-using Monitor.Configuration;
 
-namespace Monitor.Notifications
+namespace FreeDiskSpaceAlert.Alerts
 {
     public class EmailAlertChannel : IAlertChannel
     {
@@ -85,9 +84,12 @@ namespace Monitor.Notifications
             var diskSize = new DiskSize(driveInfo.AvailableFreeSpace);
             diskSize = diskSize.ConvertTo(unit);
             var messageBody = mode == TriggerMode.Accuracy
-                ? $"Available - {diskSize}, limit - {new DiskSize(thresholdValueInBytes).ConvertTo(unit)}"
-                : $"Available - {Math.Round((double)driveInfo.AvailableFreeSpace/driveInfo.TotalSize*100, 2)}%, limit - {thresholdValueInBytes*100}%";
-            var message = $"Warning. Not enough free memory for drive {driveInfo.Name}. \n{messageBody} \nMachine name{machineName}";
+                ? $"Available - <b>{diskSize}</b>, limit - <b>{new DiskSize(thresholdValueInBytes).ConvertTo(unit)}</b>"
+                : $"Available - <b>{Math.Round((double)driveInfo.AvailableFreeSpace/driveInfo.TotalSize*100, 2)}%</b>, limit - <b>{thresholdValueInBytes*100}%</b>";
+            var message = "<p><b>Warning</b> </p>" +
+                          $"<p>Not enough free space for drive <b>{driveInfo.Name}</b>. </p>" +
+                          $"<p>{messageBody}</p>" +
+                          $"<p>Machine name - <b>{machineName}</b></p>";
 
             foreach (var emailAddress in _emails)
             {
@@ -95,7 +97,7 @@ namespace Monitor.Notifications
                     .From(_config.Email)
                     .To(emailAddress)
                     .Subject($"Alert triggered on machine {machineName}")
-                    .Body(message);
+                    .Body(message, true);
                 
                 var response =  await email.SendAsync(token);
                 if (!response.Successful)

@@ -1,8 +1,8 @@
-namespace Monitor
+namespace FreeDiskSpaceAlert
 {
     public enum TriggerMode
     {
         Accuracy,
-        Percentile
+        Percentage
     }
 }

@@ -1,6 +1,6 @@
 using System;
 
-namespace Monitor
+namespace FreeDiskSpaceAlert
 {
     public struct DiskSize
     {
