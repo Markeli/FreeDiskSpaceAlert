@@ -26,6 +26,7 @@
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.1.1" />
       <PackageReference Include="NetEscapades.Configuration.Yaml" Version="1.5.0" />
       <PackageReference Include="NLog.Extensions.Logging" Version="1.3.0" />
+      <PackageReference Include="System.ServiceProcess.ServiceController" Version="4.5.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -35,12 +36,6 @@
       <None Update="NLog.config">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Reference Include="System.ServiceProcess.ServiceController, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-        <HintPath>C:\Users\Markeli\.nuget\packages\system.serviceprocess.servicecontroller\4.5.0\ref\netstandard2.0\System.ServiceProcess.ServiceController.dll</HintPath>
-      </Reference>
     </ItemGroup>
 
 </Project>

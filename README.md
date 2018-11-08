@@ -61,9 +61,28 @@ dotnet fsa.dll
 
 To run as service you need to pass argument `--service` or `-s`. 
 
-To run at Windows use `scs`.
+To run at Windows use `scs`:
 
-To run at Ubuntu use `systemd`.
+```
+sc.exe create FDSA binPath= "dotnet %AppDir%\fdsa.dll -s" DisplayName="Free Disk Space Alert"
+```
+
+To run at Ubuntu use `systemd`. Example unit file:
+```
+[Unit]
+Description=Free Disk Space Alert
+
+[Service]
+WorkingDirectory=%AppDir%
+ExecStart=/usr/bin/dotnet %AppDir%/fdsa.dll -s
+Restart=always
+# Restart service after 10 seconds if the dotnet service crashes:
+RestartSec=10
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## Logging
 

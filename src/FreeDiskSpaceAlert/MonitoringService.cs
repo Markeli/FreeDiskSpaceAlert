@@ -71,16 +71,15 @@ namespace FreeDiskSpaceAlert
             await Task.Yield();
             while (!stoppingToken.IsCancellationRequested)
             {
+                _logger.LogTrace("Checking free disk space...");
                 try
                 {
-                    
-                    await Task.Delay(_checkPeriod, stoppingToken);
-                    
                     foreach (var drive in DriveInfo.GetDrives())
                     {
                         if (stoppingToken.IsCancellationRequested) break;
                         if (!drive.IsReady) continue;
 
+                        _logger.LogTrace($"Checking free disk space for {drive.Name} drive...");
                         var raisedTriggers = _triggers
                             .Where(x => x.IsTriggered(drive));
 
@@ -88,6 +87,7 @@ namespace FreeDiskSpaceAlert
                         {
                             if (stoppingToken.IsCancellationRequested) break;
 
+                            _logger.LogTrace($"Sending alert for {drive.Name} driver...");
                             await _alertNotifier.NotifyAsync(
                                 raisedTrigger.Mode,
                                 drive,
@@ -96,7 +96,12 @@ namespace FreeDiskSpaceAlert
                                 _machineName,
                                 stoppingToken);
                         }
+                        
+                        _logger.LogTrace($"Checking free disk space for {drive.Name} drive completed.");
                     }
+                    
+                    _logger.LogTrace("Checking free disk space completed.");
+                    await Task.Delay(_checkPeriod, stoppingToken);
                 }
                 catch (OperationCanceledException e)
                 {
@@ -113,7 +118,6 @@ namespace FreeDiskSpaceAlert
                 {
                     _logger.LogError(e, "Critical error on monitoring service");
                 }
-                
             }
         }
 
