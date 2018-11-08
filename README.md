@@ -3,7 +3,7 @@
 Cross platform tool for detecting lack of free disk space and alerting via email. Useful when you need to monitor free disk space and you don't want to install large monitoring system such as `Zabix`, `NetXms`.
 
 ## Configuring
-All configuring details described below:
+To configure tool edit file `config.yml`. All configuring details described below:
 
 ```
 # Period of alerting in minutes. A small value may increase alert frequency
