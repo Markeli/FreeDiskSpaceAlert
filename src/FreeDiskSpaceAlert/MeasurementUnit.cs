@@ -1,6 +1,6 @@
 using System;
 
-namespace FreeSpaceAlert
+namespace FreeDiskSpaceAlert
 {
     public enum MeasurementUnit
     {

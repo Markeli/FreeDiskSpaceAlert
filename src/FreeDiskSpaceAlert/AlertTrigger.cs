@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace FreeSpaceAlert
+namespace FreeDiskSpaceAlert
 {
     internal class AlertTrigger
     {

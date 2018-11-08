@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using FreeSpaceAlert.Configuration;
-using FreeSpaceAlert.Notifications;
-using FreeSpaceAlert.ServiceLifetime;
+using FreeDiskSpaceAlert.Configuration;
+using FreeDiskSpaceAlert.Notifications;
+using FreeDiskSpaceAlert.ServiceLifetime;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -16,7 +16,7 @@ using NLog.Extensions.Logging;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
-namespace FreeSpaceAlert
+namespace FreeDiskSpaceAlert
 {
     class Program
     {

@@ -1,4 +1,4 @@
-# FreeSpaceAlert
+# FreeDiskSpaceAlert
 
 Cross platform tool for detecting lack of free disk space and alerting via email. Useful when you need to monitor free disk space and you don't want to install large monitoring system such as `Zabix`, `NetXms`.
 

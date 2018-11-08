@@ -2,13 +2,11 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FreeSpaceAlert.Notifications
+namespace FreeDiskSpaceAlert.Notifications
 {
-    public interface IAlertChannel
+    public interface IAlertNotifier
     {
-        string ChannelName { get; }
-        
-        bool IsEnabled { get; }
+        bool IsAlertingEnabled { get; }
         
         Task NotifyAsync(
             TriggerMode mode, 

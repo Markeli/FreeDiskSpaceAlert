@@ -7,10 +7,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentEmail.Core;
 using FluentEmail.Smtp;
-using FreeSpaceAlert.Configuration;
+using FreeDiskSpaceAlert.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace FreeSpaceAlert.Notifications
+namespace FreeDiskSpaceAlert.Notifications
 {
     public class EmailAlertChannel : IAlertChannel
     {

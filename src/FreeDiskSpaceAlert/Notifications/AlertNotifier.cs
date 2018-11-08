@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace FreeSpaceAlert.Notifications
+namespace FreeDiskSpaceAlert.Notifications
 {
     public class AlertNotifier : IAlertNotifier
     {

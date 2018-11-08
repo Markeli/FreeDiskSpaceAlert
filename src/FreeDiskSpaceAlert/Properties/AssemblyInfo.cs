@@ -1,10 +1,10 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("FreeSpaceAlert")]
+[assembly: AssemblyTitle("FreeDiskSpaceAlert")]
 [assembly: AssemblyDescription("Tool for detecting lack of disk space and alerting via Email")]
 [assembly: AssemblyCompany("Markeli")]
-[assembly: AssemblyProduct("FreeSpaceAlert")]
+[assembly: AssemblyProduct("FreeDiskSpaceAlert")]
 
 [assembly: ComVisible(false)]
 

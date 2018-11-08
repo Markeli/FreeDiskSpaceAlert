@@ -4,12 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using FreeSpaceAlert.Configuration;
-using FreeSpaceAlert.Notifications;
+using FreeDiskSpaceAlert.Configuration;
+using FreeDiskSpaceAlert.Notifications;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace FreeSpaceAlert
+namespace FreeDiskSpaceAlert
 {
 
     public class MonitoringService : BackgroundService

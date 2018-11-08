@@ -1,4 +1,4 @@
-namespace FreeSpaceAlert
+namespace FreeDiskSpaceAlert
 {
     public enum TriggerMode
     {
