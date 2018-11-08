@@ -10,7 +10,7 @@ Drives:
   - DeviceName: D
     ThresholdValue: 0.8
     TriggerMode: Percentile
-    MeasurementUnit: asdas
+    MeasurementUnit: GB
     
 #EmailConfiguration:
 #  Host: smtp.mail.ru
