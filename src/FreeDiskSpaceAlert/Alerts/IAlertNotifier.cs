@@ -2,7 +2,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FreeDiskSpaceAlert.Notifications
+namespace FreeDiskSpaceAlert.Alerts
 {
     public interface IAlertNotifier
     {
