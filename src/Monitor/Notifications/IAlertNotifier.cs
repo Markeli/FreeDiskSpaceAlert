@@ -6,6 +6,8 @@ namespace Monitor.Notifications
 {
     public interface IAlertNotifier
     {
+        bool IsAlertingEnabled { get; }
+        
         Task NotifyAsync(
             TriggerMode mode, 
             DriveInfo driveInfo, 

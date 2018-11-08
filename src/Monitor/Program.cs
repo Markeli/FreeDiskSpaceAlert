@@ -18,6 +18,8 @@ namespace Monitor
 {
     class Program
     {
+        private static string AppName = "FreeSpaceAlert";
+        
         static async Task Main(string[] args)
         {
             Directory.SetCurrentDirectory(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
@@ -57,7 +59,7 @@ namespace Monitor
                         var config = c.GetService<IConfiguration>();
                         var emailSection = config.GetSection("EmailConfiguration");
                         if (emailSection?.Value == null) return null;
-                        
+
                         var emailConfiguration = new EmailConfiguration();
                         emailSection.Bind(emailConfiguration);
                         return emailConfiguration;
@@ -83,9 +85,13 @@ namespace Monitor
                     await builder.RunConsoleAsync();
                 }
             }
+            catch (AppMonkeyBusinessException e)
+            {
+                logger.Warn($"{AppName} stopped. {e.Message}");
+            }
             catch (Exception e)
             {
-                logger.Error(e, "Critical error occured in Monitor");
+                logger.Error(e, $"Critical error occured in {AppName}");
             }
             finally
             {

@@ -12,6 +12,8 @@ namespace Monitor.Notifications
     {
         private readonly ICollection<IAlertChannel> _channels;
 
+        public bool IsAlertingEnabled { get; }
+        
         public AlertNotifier(
             IAlertChannel channel,
             ILoggerFactory loggerFactory)
@@ -24,11 +26,19 @@ namespace Monitor.Notifications
             {
                 channel
             };
+            IsAlertingEnabled = false;
             foreach (var notificationChannel in _channels)
             {
-                var message = notificationChannel.IsEnabled
-                    ? $"{channel.ChannelName} alert channel enabled"
-                    : $"{channel.ChannelName} alert channel disabled. To enable add email settings to config file.";
+                String message;
+                if (notificationChannel.IsEnabled)
+                {
+                    message = $"{channel.ChannelName} alert channel enabled";
+                    IsAlertingEnabled = true;
+                }
+                else
+                {
+                    message = $"{channel.ChannelName} alert channel disabled. To enable add email settings to config file.";
+                }
                 logger.LogInformation(message);
             }
         }

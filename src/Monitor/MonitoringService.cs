@@ -55,6 +55,10 @@ namespace Monitor
         public override async Task StartAsync(CancellationToken token)
         {
             _logger.LogInformation("Starting monitoring service");
+            
+            if (!_alertNotifier.IsAlertingEnabled)
+                throw new AppMonkeyBusinessException("No alert channels registered. Configure one or more channels in config to run app");
+            
             await base.StartAsync(token);
             _logger.LogInformation("Monitoring service started");
         }
