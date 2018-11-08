@@ -3,12 +3,12 @@ MachineName: local
   
 Drives:
   - DeviceName: C
-    ThresholdValue: 150
+    ThresholdValue: 10
     TriggerMode: Accuracy
     MeasurementUnit: GB
 
   - DeviceName: D
-    ThresholdValue: 0.8
+    ThresholdValue: 0.1
     TriggerMode: Percentile
     MeasurementUnit: GB
     
