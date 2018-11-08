@@ -44,7 +44,7 @@ namespace FreeSpaceAlert
             {
                 case TriggerMode.Accuracy:
                     return info.AvailableFreeSpace < ThresholdValueInBytes;
-                case TriggerMode.Percentile:
+                case TriggerMode.Percentage:
                     return (double)info.AvailableFreeSpace / info.TotalSize < ThresholdValueInBytes;
                 default:
                     throw new ArgumentOutOfRangeException();

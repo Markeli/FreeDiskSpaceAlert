@@ -1,7 +1,22 @@
-CheckPeriodSec: 10
+# Period of alerting in minutes. A small value may increase alert frequency
+AlertPeriodMin: 10
+# Name of machine where app is running. Used to identify machine in alert notification.
 MachineName: local
-  
+ 
+# Configuration of monitored devices
 Drives:
+
+#  Example. To add new drive copy this section and change value
+#    Deice name (C, D, etc)
+  - DeviceName: C 
+# Threshold value of free disk space when app will alerting
+    ThresholdValue: 10
+#  Define how app will detect lack of free disk space. 
+#  You can specify an exact threshold (Accuracy), or you can specify a percentage (Percentage) of the maximum disk size
+    TriggerMode: Accuracy
+# Allowed values: Bytes, KB, MB and GB
+    MeasurementUnit: GB
+  
   - DeviceName: C
     ThresholdValue: 10
     TriggerMode: Accuracy
@@ -9,13 +24,15 @@ Drives:
 
   - DeviceName: D
     ThresholdValue: 0.1
-    TriggerMode: Percentile
+    TriggerMode: Percentage
     MeasurementUnit: GB
-    
-#EmailConfiguration:
-#  Host: smtp.mail.ru
-#  Port: 587
-#
-#  EnableSsl: true
-#  Recipients:
-#  - max.markelow@gmail.com
+
+# Configuration of Email alert. Specify email params and Recipients of alert  
+EmailConfiguration:
+  Host: smtp server address
+  Port: port of smrpt server
+  Email: your@ema.il
+  Password: your_password
+  EnableSsl: true
+  Recipients:
+  - max.markelow@gmail.com

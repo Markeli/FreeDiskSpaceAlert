@@ -4,7 +4,7 @@ namespace FreeSpaceAlert.Configuration
 {
     public class MonitoringConfiguration
     {
-        public int CheckPeriodSec { get; set; }
+        public int AlertPeriodMin { get; set; }
         
         public string MachineName { get; set; }
         

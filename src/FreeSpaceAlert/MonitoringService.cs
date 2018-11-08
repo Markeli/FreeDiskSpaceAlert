@@ -21,27 +21,30 @@ namespace FreeSpaceAlert
         private readonly ILogger _logger;
 
         public MonitoringService(
-            MonitoringConfiguration configuration,
+            MonitoringConfiguration config,
             IAlertNotifier alertNotifier,
             ILoggerFactory loggerFactory)
         {
-            if (configuration == null) throw new ArgumentNullException(nameof(configuration));
+            if (config == null) throw new ArgumentNullException(nameof(config));
             if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
-            if (configuration.Drives == null) 
-                throw new ArgumentNullException($"{nameof(configuration.Drives)} can not be null. " +
+            if (config.Drives == null) 
+                throw new ArgumentNullException($"{nameof(config.Drives)} can not be null. " +
                                                 "Check drive section in config file");
-            if (String.IsNullOrWhiteSpace(configuration.MachineName))
-                throw new ArgumentNullException($"{nameof(configuration.MachineName)} can not be null." +
+            if (String.IsNullOrWhiteSpace(config.MachineName))
+                throw new ArgumentNullException($"{nameof(config.MachineName)} can not be null." +
+                                                "Check config file");
+            if (config.AlertPeriodMin <= 0)
+                throw new ArgumentNullException($"{nameof(config.AlertPeriodMin)} can not less than 1." +
                                                 "Check config file");
             
             _alertNotifier = alertNotifier;
             _logger = loggerFactory.CreateLogger<MonitoringService>();
 
-            _checkPeriod = TimeSpan.FromSeconds(configuration.CheckPeriodSec);
-            _machineName = configuration.MachineName;
+            _checkPeriod = TimeSpan.FromMinutes(config.AlertPeriodMin);
+            _machineName = config.MachineName;
             
-            _triggers = new List<AlertTrigger>(configuration.Drives.Count);
-            foreach (var drive in configuration.Drives)
+            _triggers = new List<AlertTrigger>(config.Drives.Count);
+            foreach (var drive in config.Drives)
             {
                 _triggers.Add(
                     new AlertTrigger(
