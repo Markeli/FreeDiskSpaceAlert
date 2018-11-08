@@ -53,12 +53,12 @@ namespace Monitor.Notifications
                 }
                 
                 Email.DefaultSender = new SmtpSender(
-                    new SmtpClient(_config.Host,_config.Port)
+                    new SmtpClient(config.Host,config.Port)
                     {
-                        EnableSsl = _config.EnableSsl,
+                        EnableSsl = config.EnableSsl,
                         Timeout = 5000,
                         UseDefaultCredentials = false,
-                        Credentials = new NetworkCredential(_config.Email, _config.Password)
+                        Credentials = new NetworkCredential(config.Email, config.Password)
                     });
                 
                 
