@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -19,17 +20,26 @@ namespace FreeSpaceAlert
 {
     class Program
     {
-        private static string AppName = "FreeSpaceAlert";
+        private const string AppName = "FreeDiskSpaceAlert";
+        private static readonly string[] HelpOptions = { "-h", "--help"};
+        private static readonly string[] RunAsServiceOptions = { "-s", "--service"};
         
         static async Task Main(string[] args)
         {
+            var argsSet = new HashSet<string>(args);
+            if (argsSet.Contains(HelpOptions[0]) || argsSet.Contains(HelpOptions[1]))
+            {
+                ShowHelp();
+                return;
+            }
+
+            var isService = argsSet.Contains(RunAsServiceOptions[0]) || argsSet.Contains(RunAsServiceOptions[1]);
+            
             Directory.SetCurrentDirectory(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
             var logger = LogManager.LoadConfiguration("NLog.config").GetCurrentClassLogger();
 
             try
             {
-                var isService = false;
-
                 var builder = new HostBuilder();
                 builder.ConfigureAppConfiguration((context, config) =>
                 {
@@ -98,6 +108,15 @@ namespace FreeSpaceAlert
             {
                 LogManager.Shutdown();
             }
+        }
+
+        private static void ShowHelp()
+        {
+            var help = $"{AppName} {Environment.NewLine}" +
+                       $"{AppName} is cross platform tool for detecting lack of free disk space and alerting via email.{Environment.NewLine}" +
+                       $"To configure tool change config.yml. All config sections are self-described. {Environment.NewLine}" +
+                       "To get more details, please, visit https://github.com/Markeli/FreeDiskSpaceAlert";
+            Console.WriteLine(help);
         }
     }
 }
