@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Monitor.Configuration
+namespace FreeSpaceAlert.Configuration
 {
     public class EmailConfiguration
     {

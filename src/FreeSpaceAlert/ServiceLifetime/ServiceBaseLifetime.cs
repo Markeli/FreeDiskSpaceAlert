@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 
-namespace Monitor.ServiceLifetime
+namespace FreeSpaceAlert.ServiceLifetime
 {
     public class ServiceBaseLifetime : ServiceBase, IHostLifetime
     {

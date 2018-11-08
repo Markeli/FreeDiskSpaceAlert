@@ -3,10 +3,8 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("FreeSpaceAlert")]
 [assembly: AssemblyDescription("Tool for detecting lack of disk space and alerting via Email")]
-[assembly: AssemblyConfiguration("Release")]
 [assembly: AssemblyCompany("Markeli")]
 [assembly: AssemblyProduct("FreeSpaceAlert")]
-[assembly: AssemblyCulture("en-EN")]
 
 [assembly: ComVisible(false)]
 

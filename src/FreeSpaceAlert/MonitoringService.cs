@@ -4,12 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using FreeSpaceAlert.Configuration;
+using FreeSpaceAlert.Notifications;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Monitor.Configuration;
-using Monitor.Notifications;
 
-namespace Monitor
+namespace FreeSpaceAlert
 {
 
     public class MonitoringService : BackgroundService

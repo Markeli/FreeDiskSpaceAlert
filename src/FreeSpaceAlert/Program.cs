@@ -3,19 +3,19 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using FreeSpaceAlert.Configuration;
+using FreeSpaceAlert.Notifications;
+using FreeSpaceAlert.ServiceLifetime;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Monitor.Configuration;
-using Monitor.Notifications;
-using Monitor.ServiceLifetime;
 using NLog;
 using NLog.Extensions.Logging;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
-namespace Monitor
+namespace FreeSpaceAlert
 {
     class Program
     {

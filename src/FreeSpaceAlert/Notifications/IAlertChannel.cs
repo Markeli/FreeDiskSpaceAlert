@@ -2,7 +2,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Monitor.Notifications
+namespace FreeSpaceAlert.Notifications
 {
     public interface IAlertChannel
     {

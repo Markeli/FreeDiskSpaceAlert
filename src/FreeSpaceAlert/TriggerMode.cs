@@ -1,4 +1,4 @@
-namespace Monitor
+namespace FreeSpaceAlert
 {
     public enum TriggerMode
     {
