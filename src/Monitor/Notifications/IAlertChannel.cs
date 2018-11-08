@@ -4,8 +4,12 @@ using System.Threading.Tasks;
 
 namespace Monitor.Notifications
 {
-    public interface INotificationChannel
+    public interface IAlertChannel
     {
+        string ChannelName { get; }
+        
+        bool IsEnabled { get; }
+        
         Task NotifyAsync(
             TriggerMode mode, 
             DriveInfo driveInfo, 

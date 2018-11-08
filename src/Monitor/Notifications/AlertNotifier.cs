@@ -10,24 +10,30 @@ namespace Monitor.Notifications
 {
     public class AlertNotifier : IAlertNotifier
     {
-        private readonly ICollection<INotificationChannel> _channels;
-        private readonly ILogger _logger;
+        private readonly ICollection<IAlertChannel> _channels;
 
         public AlertNotifier(
-            INotificationChannel channel,
+            IAlertChannel channel,
             ILoggerFactory loggerFactory)
         {
             if (channel == null) throw new ArgumentNullException(nameof(channel));
             if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
 
-            _logger = loggerFactory.CreateLogger<AlertNotifier>();
-            _channels = new List<INotificationChannel>
+            var logger = loggerFactory.CreateLogger<AlertNotifier>();
+            _channels = new List<IAlertChannel>
             {
                 channel
             };
+            foreach (var notificationChannel in _channels)
+            {
+                var message = notificationChannel.IsEnabled
+                    ? $"{channel.ChannelName} alert channel enabled"
+                    : $"{channel.ChannelName} alert channel disabled. To enable add email settings to config file.";
+                logger.LogInformation(message);
+            }
         }
 
-        public AlertNotifier(ICollection<INotificationChannel> channels)
+        public AlertNotifier(ICollection<IAlertChannel> channels)
         {
             _channels = channels ?? throw new ArgumentNullException(nameof(channels));
         }

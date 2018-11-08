@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Monitor.Configuration
 {
     public class EmailConfiguration
@@ -11,5 +13,7 @@ namespace Monitor.Configuration
         public string Password { get; set; }
         
         public bool EnableSsl { get; set; }
+        
+        public ICollection<string> Recipients { get; set; }
     }
 }

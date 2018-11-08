@@ -13,55 +13,63 @@ using Monitor.Configuration;
 
 namespace Monitor.Notifications
 {
-    public class EmailNotificationChannel : INotificationChannel
+    public class EmailAlertChannel : IAlertChannel
     {
         private readonly EmailConfiguration _config;
         private readonly ICollection<string> _emails;
         private readonly ILogger _logger;
+        
+        public bool IsEnabled => _config != null;
 
-        public EmailNotificationChannel(
-            MonitoringConfiguration config,
+        public string ChannelName => "Email";
+        
+        public EmailAlertChannel(
+            EmailConfiguration config,
             ILoggerFactory loggerFactory)
         {
             if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
-            if (config == null) throw new ArgumentNullException(nameof(config));
-            if (config.EmailConfiguration == null) 
-                throw new ArgumentNullException($"{nameof(config.EmailConfiguration)} can not be null. " +
-                                                "Check email configuration section in config file");
-            if (String.IsNullOrWhiteSpace(config.EmailConfiguration.Host))
-                throw new ArgumentNullException($"{nameof(config.EmailConfiguration.Host)} can not be null." +
-                                                "Check host in email configuration section in config file");
-            
-            if (String.IsNullOrWhiteSpace(config.EmailConfiguration.Email))  
-                throw new ArgumentNullException($"{nameof(config.EmailConfiguration.Email)} can not be null." +
-                                                "Check email configuration section in config file");
-            if (String.IsNullOrWhiteSpace(config.EmailConfiguration.Password))  
-                throw new ArgumentNullException($"{nameof(config.EmailConfiguration.Password)} can not be null." +
-                                                "Check email configuration section in config file");
-            
-            if (config.Emails == null)  
-                throw new ArgumentNullException($"{nameof(config.Emails)} can not be null." +
-                                                "Check email section in config file");
-            
-            foreach (var email in config.Emails)
+            if (config != null)
             {
-                if (String.IsNullOrWhiteSpace(email))
-                    throw new ArgumentException("Email can not be null. Check config file");
+                if (String.IsNullOrWhiteSpace(config.Host))
+                    throw new ArgumentNullException($"{nameof(config.Host)} can not be null." +
+                                                    "Check host in email configuration section in config file");
+
+                if (String.IsNullOrWhiteSpace(config.Email))
+                    throw new ArgumentNullException($"{nameof(config.Email)} can not be null." +
+                                                    "Check email configuration section in config file");
+                if (String.IsNullOrWhiteSpace(config.Password))
+                    throw new ArgumentNullException($"{nameof(config.Password)} can not be null." +
+                                                    "Check email configuration section in config file");
+
+                if (config.Recipients == null)
+                    throw new ArgumentNullException($"{nameof(config.Recipients)} can not be null." +
+                                                    "Check email section in config file");
+
+                var emails = new HashSet<string>();
+                foreach (var email in config.Recipients)
+                {
+                    if (String.IsNullOrWhiteSpace(email))
+                        throw new ArgumentException("Email can not be null. Check config file");
+                }
+                
+                Email.DefaultSender = new SmtpSender(
+                    new SmtpClient(_config.Host,_config.Port)
+                    {
+                        EnableSsl = _config.EnableSsl,
+                        Timeout = 5000,
+                        UseDefaultCredentials = false,
+                        Credentials = new NetworkCredential(_config.Email, _config.Password)
+                    });
+                
+                
+                _emails = config.Recipients;
             }
 
-            _logger = loggerFactory.CreateLogger<EmailNotificationChannel>();
+            _logger = loggerFactory.CreateLogger<EmailAlertChannel>();
             
-            _config = config.EmailConfiguration;
-            _emails = config.Emails;
+            _config = config;
             
-            Email.DefaultSender = new SmtpSender(
-                new SmtpClient(_config.Host,_config.Port)
-                {
-                    EnableSsl = _config.EnableSsl,
-                    Timeout = 5000,
-                    UseDefaultCredentials = false,
-                    Credentials = new NetworkCredential(_config.Email, _config.Password)
-                });
+           
         }
         
         public async Task NotifyAsync(
@@ -72,6 +80,8 @@ namespace Monitor.Notifications
             string machineName,
             CancellationToken token)
         {
+            if (!IsEnabled) return;
+            
             var diskSize = new DiskSize(driveInfo.AvailableFreeSpace);
             diskSize = diskSize.ConvertTo(unit);
             var messageBody = mode == TriggerMode.Accuracy

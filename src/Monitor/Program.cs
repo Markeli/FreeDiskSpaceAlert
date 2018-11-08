@@ -52,7 +52,16 @@ namespace Monitor
                         b.ClearProviders();
                         b.SetMinimumLevel(LogLevel.Trace);
                     });
-
+                    services.AddSingleton(c =>
+                    {
+                        var config = c.GetService<IConfiguration>();
+                        var emailSection = config.GetSection("EmailConfiguration");
+                        if (emailSection?.Value == null) return null;
+                        
+                        var emailConfiguration = new EmailConfiguration();
+                        emailSection.Bind(emailConfiguration);
+                        return emailConfiguration;
+                    });
                     services.AddSingleton(c =>
                     {
                         var config = c.GetService<IConfiguration>();
@@ -60,7 +69,7 @@ namespace Monitor
                         config.Bind(monitoringConfiguration);
                         return monitoringConfiguration;
                     });
-                    services.AddSingleton<INotificationChannel, EmailNotificationChannel>();
+                    services.AddSingleton<IAlertChannel, EmailAlertChannel>();
                     services.AddSingleton<IAlertNotifier, AlertNotifier>();
                     services.AddHostedService<MonitoringService>();
                 });

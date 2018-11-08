@@ -8,10 +8,6 @@ namespace Monitor.Configuration
         
         public string MachineName { get; set; }
         
-        public EmailConfiguration EmailConfiguration { get; set; }
-        
-        public ICollection<string> Emails { get; set; }
-        
         public ICollection<MonitoredDrive> Drives { get; set; } 
     }
 }
